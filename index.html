@@ -95,7 +95,7 @@
       border-radius: 50px;
       cursor: pointer;
       box-shadow: 0 4px 14px rgba(255,107,53,0.4);
-      transition: transform 0.15s, box-shadow 0.15s;
+      transition: transform 0.15s, box-sizing 0.15s;
     }
 
     .btn-start:hover {
@@ -237,6 +237,7 @@
       text-align: center;
       line-height: 1.6;
       box-shadow: 0 8px 24px rgba(255,107,53,0.25);
+      white-space: pre-line;
       transform: translateY(20px);
       opacity: 0;
       transition: transform 0.3s 0.15s ease, opacity 0.3s 0.15s ease;
@@ -274,7 +275,7 @@
 <!-- ── 시작 화면 ── -->
 <div id="start-screen">
   <div class="sobung-intro">
-    <img src="images/sobung1.png" alt="소붕이" onerror="this.style.display='none';this.parentNode.textContent='🧑‍💼'" />
+    <img src="images/83AB2666-7F72-4A36-855E-597E18409624.png" alt="소붕이" onerror="this.style.display='none';this.parentNode.textContent='🧑‍💼'" />
   </div>
   <h1>소붕이한테<br/><span>업무요청하기</span></h1>
   <div class="name-input-wrap">
@@ -288,7 +289,7 @@
 <div id="main-screen">
   <!-- 떠돌아다니는 소붕이 -->
   <div id="wandering-sobung">
-    <img src="images/sobung1.png" alt="소붕이" onerror="this.style.display='none';this.parentNode.textContent='🧑‍💼'" />
+    <img src="images/83AB2666-7F72-4A36-855E-597E18409624.png" alt="소붕이" onerror="this.style.display='none';this.parentNode.textContent='🧑‍💼'" />
   </div>
 
   <!-- 반응 전체화면 -->
@@ -319,9 +320,9 @@
   let isReacting = false;
 
   const REACTION_IMAGES = [
-    'images/sobung2.png',
-    'images/sobung3.png',
-    'images/sobung4.png',
+    'images/95E6DB5C-C427-4B0F-BC9A-6958A8CE2480.png',
+    'images/45666146-03EE-44FC-93D4-D79C1CF6C064.png',
+    'images/A27B17B0-B13E-4F2C-B123-68512B2A5E75.png',
   ];
 
   const REACTION_FALLBACK_EMOJIS = ['😤', '🤯', '😵'];
