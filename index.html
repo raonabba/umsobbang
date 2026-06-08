@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>소붕이한테 업무요청하기</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Noto Sans KR', '맑은 고딕', sans-serif;
+      background: #fff9f0;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── 시작 화면 ── */
+    #start-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      gap: 32px;
+      background: linear-gradient(135deg, #fff9f0 0%, #ffe8cc 100%);
+    }
+
+    #start-screen h1 {
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: #333;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    #start-screen h1 span {
+      color: #ff6b35;
+    }
+
+    .sobung-intro {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: #fff;
+      border: 4px solid #ffb347;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(255,107,53,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sobung-intro img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .name-input-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      max-width: 360px;
+      padding: 0 20px;
+    }
+
+    .name-input-wrap label {
+      font-size: 1rem;
+      color: #555;
+      font-weight: 600;
+    }
+
+    .name-input-wrap input {
+      width: 100%;
+      padding: 14px 20px;
+      font-size: 1.1rem;
+      border: 3px solid #ffb347;
+      border-radius: 16px;
+      background: #fff;
+      outline: none;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .name-input-wrap input:focus {
+      border-color: #ff6b35;
+    }
+
+    .btn-start {
+      padding: 14px 40px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: #ff6b35;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(255,107,53,0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-start:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255,107,53,0.5);
+    }
+
+    .btn-start:active { transform: translateY(0); }
+
+    /* ── 메인 화면 ── */
+    #main-screen {
+      display: none;
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(135deg, #fff9f0 0%, #ffe8cc 100%);
+    }
+
+    /* 떠돌아다니는 소붕이 */
+    #wandering-sobung {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      cursor: pointer;
+      user-select: none;
+      z-index: 10;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+      transition: transform 0.15s;
+    }
+
+    #wandering-sobung img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    #wandering-sobung:hover { transform: scale(1.08); }
+
+    /* 하단 입력창 */
+    #request-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 16px 20px 24px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+      border-top: 2px solid #ffb347;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #request-panel .panel-title {
+      font-size: 0.85rem;
+      color: #888;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .request-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    #request-input {
+      flex: 1;
+      padding: 12px 18px;
+      font-size: 1rem;
+      border: 2.5px solid #ffb347;
+      border-radius: 50px;
+      outline: none;
+      background: #fff;
+      transition: border-color 0.2s;
+    }
+
+    #request-input:focus { border-color: #ff6b35; }
+
+    #btn-send {
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 700;
+      background: #ff6b35;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 3px 10px rgba(255,107,53,0.4);
+      transition: transform 0.1s;
+    }
+
+    #btn-send:hover { transform: scale(1.04); }
+    #btn-send:active { transform: scale(0.97); }
+
+    /* 반응 말풍선 */
+    #reaction-bubble {
+      position: absolute;
+      max-width: 240px;
+      background: #fff;
+      border: 3px solid #ff6b35;
+      border-radius: 20px;
+      padding: 14px 18px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #333;
+      line-height: 1.5;
+      z-index: 200;
+      box-shadow: 0 8px 24px rgba(255,107,53,0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+      text-align: center;
+    }
+
+    #reaction-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -13px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 12px solid #ff6b35;
+    }
+
+    #reaction-bubble.show { opacity: 1; }
+
+    /* 반응 이미지 오버레이 */
+    #reaction-image-wrap {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    #reaction-image-wrap.show { opacity: 1; }
+
+    #reaction-image-wrap img {
+      width: min(280px, 65vw);
+      height: auto;
+      filter: drop-shadow(0 12px 32px rgba(0,0,0,0.2));
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes popIn {
+      0%   { transform: scale(0.5) rotate(-5deg); }
+      80%  { transform: scale(1.08) rotate(2deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
+    /* 번개 이펙트 */
+    .lightning {
+      position: fixed;
+      font-size: 2rem;
+      z-index: 250;
+      animation: zap 0.6s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes zap {
+      0%   { opacity: 1; transform: scale(0.5); }
+      50%  { opacity: 1; transform: scale(1.4); }
+      100% { opacity: 0; transform: scale(0.8) translateY(-30px); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── 시작 화면 ── -->
+<div id="start-screen">
+  <div class="sobung-intro">
+    <img src="images/sobung1.png" alt="소붕이" />
+  </div>
+  <h1>소붕이한테<br/><span>업무요청하기</span></h1>
+  <div class="name-input-wrap">
+    <label for="name-input">요청자 이름을 입력하세요</label>
+    <input id="name-input" type="text" placeholder="이름을 입력하세요" maxlength="10" />
+    <button class="btn-start" onclick="startApp()">시작하기</button>
+  </div>
+</div>
+
+<!-- ── 메인 화면 ── -->
+<div id="main-screen">
+  <!-- 떠돌아다니는 소붕이 -->
+  <div id="wandering-sobung">
+    <img id="sobung-main-img" src="images/sobung1.png" alt="소붕이" />
+  </div>
+
+  <!-- 말풍선 -->
+  <div id="reaction-bubble"></div>
+
+  <!-- 반응 이미지 오버레이 -->
+  <div id="reaction-image-wrap">
+    <img id="reaction-img" src="" alt="소붕이 반응" />
+  </div>
+
+  <!-- 하단 입력창 -->
+  <div id="request-panel">
+    <div class="panel-title" id="panel-title">소붕이에게 업무를 요청해보세요 📝</div>
+    <div class="request-row">
+      <input id="request-input" type="text" placeholder="업무를 요청하세요" maxlength="100" />
+      <button id="btn-send" onclick="sendRequest()">전송</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let requesterName = '';
+  let wanderAnim = null;
+  let sobungX = 100, sobungY = 100;
+  let targetX = 200, targetY = 200;
+  let reactionTimeout = null;
+
+  const REACTION_IMAGES = [
+    'images/sobung2.png',
+    'images/sobung3.png',
+    'images/sobung4.png',
+  ];
+
+  function getMessages() {
+    const n = Math.floor(Math.random() * 30) + 1;
+    return [
+      `제가 구매경력 ${n}년동안 이런일은 처음이에요!`,
+      '아이고 두야..',
+      '누가 좀 놀아줘요',
+      '네??제가요???',
+      `그건 ${requesterName}이 하셔야죠!`,
+      '저 휴가입니다',
+      '한입 하실래요? 붕어빵?',
+      '호롤ㄹ롤로로',
+    ];
+  }
+
+  function startApp() {
+    const nameVal = document.getElementById('name-input').value.trim();
+    if (!nameVal) {
+      document.getElementById('name-input').focus();
+      document.getElementById('name-input').style.borderColor = '#ff0000';
+      setTimeout(() => document.getElementById('name-input').style.borderColor = '', 600);
+      return;
+    }
+    requesterName = nameVal;
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('main-screen').style.display = 'block';
+    document.getElementById('panel-title').textContent = `${requesterName}님, 소붕이에게 업무를 요청해보세요 📝`;
+    initWander();
+  }
+
+  document.getElementById('name-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') startApp();
+  });
+
+  document.getElementById('request-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendRequest();
+  });
+
+  /* ── 소붕이 떠돌기 ── */
+  function initWander() {
+    const el = document.getElementById('wandering-sobung');
+    sobungX = 100; sobungY = 100;
+    el.style.left = sobungX + 'px';
+    el.style.top  = sobungY + 'px';
+    pickNewTarget();
+    wander();
+  }
+
+  function pickNewTarget() {
+    const margin = 140;
+    const panelH = 100;
+    const maxX = window.innerWidth - margin;
+    const maxY = window.innerHeight - margin - panelH;
+    targetX = margin/2 + Math.random() * (maxX - margin/2);
+    targetY = margin/2 + Math.random() * (maxY - margin/2);
+  }
+
+  function wander() {
+    const el = document.getElementById('wandering-sobung');
+    const speed = 1.2;
+    const dx = targetX - sobungX;
+    const dy = targetY - sobungY;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+
+    if (dist < 3) {
+      setTimeout(pickNewTarget, 800 + Math.random() * 1200);
+    } else {
+      sobungX += (dx / dist) * speed;
+      sobungY += (dy / dist) * speed;
+    }
+
+    el.style.left = sobungX + 'px';
+    el.style.top  = sobungY + 'px';
+    wanderAnim = requestAnimationFrame(wander);
+  }
+
+  window.addEventListener('resize', () => {
+    pickNewTarget();
+  });
+
+  /* ── 업무 요청 ── */
+  function sendRequest() {
+    const val = document.getElementById('request-input').value.trim();
+    if (!val) return;
+
+    document.getElementById('request-input').value = '';
+
+    const messages = getMessages();
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    const img = REACTION_IMAGES[Math.floor(Math.random() * REACTION_IMAGES.length)];
+
+    showReaction(msg, img);
+    spawnLightning();
+  }
+
+  function showReaction(message, imgSrc) {
+    if (reactionTimeout) clearTimeout(reactionTimeout);
+
+    // 소붕이 이미지 오버레이
+    const imgWrap = document.getElementById('reaction-image-wrap');
+    const imgEl   = document.getElementById('reaction-img');
+    imgEl.src = imgSrc;
+    imgWrap.classList.add('show');
+
+    // 소붕이 위 말풍선
+    const bubble = document.getElementById('reaction-bubble');
+    bubble.textContent = message;
+
+    // 소붕이 위치 기준으로 말풍선 위치
+    const bx = Math.min(sobungX - 40, window.innerWidth - 260);
+    const by = sobungY - 80;
+    bubble.style.left = Math.max(8, bx) + 'px';
+    bubble.style.top  = Math.max(8, by) + 'px';
+    bubble.classList.add('show');
+
+    reactionTimeout = setTimeout(() => {
+      imgWrap.classList.remove('show');
+      bubble.classList.remove('show');
+    }, 2800);
+  }
+
+  function spawnLightning() {
+    const emojis = ['⚡', '💥', '✨'];
+    for (let i = 0; i < 4; i++) {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = 'lightning';
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        el.style.left = (20 + Math.random() * (window.innerWidth - 80)) + 'px';
+        el.style.top  = (20 + Math.random() * (window.innerHeight * 0.6)) + 'px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 700);
+      }, i * 100);
+    }
+  }
+</script>
+</body>
+</html>
